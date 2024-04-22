@@ -1,0 +1,68 @@
+version: '3'
+services:
+
+  account-db:
+    image: postgres:14.2
+    hostname: postgres-host
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5451:5432'
+    volumes: 
+      - ./account_data/volume:/var/lib/postgresql/data
+
+  notification-db:
+    image: postgres:14.2
+    hostname: postgres-host
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5452:5432'
+    volumes:
+      - ./notification_data/volume:/var/lib/postgresql/data
+
+  shipment-db:
+    image: postgres:14.2
+    hostname: postgres-host
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5453:5432'
+    volumes:
+      - ./shipment_data/volume:/var/lib/postgresql/data
+
+  payment-db:
+    image: postgres:14.2
+    hostname: postgres-host
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5454:5432'
+    volumes:
+      - ./payment_data/volume:/var/lib/postgresql/data
+
+  inventory-db:
+    image: postgres:14.2
+    hostname: postgres-host
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5455:5432'
+    volumes:
+      - ./inventory_data/volume:/var/lib/postgresql/data
+
+  order-db:
+    image: postgres:14.2
+    hostname: postgres-host
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5456:5432'
+    volumes:
+      - ./order_data/volume:/var/lib/postgresql/data
