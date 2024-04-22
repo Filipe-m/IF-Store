@@ -1,0 +1,36 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+      - release/*
+  pull_request_target:
+  merge_group:
+    branches: [ main ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Unit tests
+    steps:
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: arduino/setup-protoc@v1
+        with:
+          version: '3.x'
+
+      - name: Run unit tests
+        run: |
+          echo "\n--------------RUNNING ACCOUNT TESTS -------------------"
+          go test -p 1 -count=1 src/account/...
+          echo "\n--------------RUNNING NOTIFICATION TESTS --------------"
+          go test -p 1 -count=1 src/notification/...
+          echo "\n--------------RUNNING SHIPMENT TESTS ------------------"
+          go test -p 1 -count=1 src/shipment/...
