@@ -28,9 +28,9 @@ jobs:
 
       - name: Run unit tests
         run: |
-          echo "\n--------------RUNNING ACCOUNT TESTS -------------------"
-          go test -p 1 -count=1 ./src/account/...
-          echo "\n--------------RUNNING NOTIFICATION TESTS --------------"
-          go test -p 1 -count=1 ./src/notification/...
-          echo "\n--------------RUNNING SHIPMENT TESTS ------------------"
-          go test -p 1 -count=1 ./src/shipment/...
+          echo "--------------RUNNING ACCOUNT TESTS -------------------"
+          cd src/account && go test -p 1 -count=1 ./... && cd .. && cd ..
+          echo "--------------RUNNING NOTIFICATION TESTS --------------"
+          cd src/notification && go test -p 1 -count=1 ./... && cd .. && cd ..
+          echo "--------------RUNNING SHIPMENT TESTS ------------------"
+          cd src/shipment && go test -p 1 -count=1 ./... && cd .. && cd ..
