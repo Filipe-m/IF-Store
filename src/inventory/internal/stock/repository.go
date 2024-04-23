@@ -51,7 +51,7 @@ func (r *repository) FindByProductId(ctx context.Context, id string) (*Stock, er
 }
 
 func (r *repository) Delete(ctx context.Context, id string) error {
-	err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&Stock{}).Error
+	err := r.db.WithContext(ctx).Where("product_id = ?", id).Delete(&Stock{}).Error
 	if err != nil {
 		return err
 	}

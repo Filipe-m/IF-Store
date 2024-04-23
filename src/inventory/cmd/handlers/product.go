@@ -77,6 +77,23 @@ func (p *Product) DeleteProduct(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "success"})
 }
 
+func (p *Product) ListProducts(c *fiber.Ctx) error {
+
+	page := c.QueryInt("page", 1)
+	if page == 1 {
+		page = 0
+	} else {
+		page = page - 1
+	}
+
+	response, err := p.repository.FindAll(c.Context(), 25, page*25)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(response)
+}
+
 func NewProductHandler(repository product.Repository, stockRepository stock.Repository) *Product {
 	return &Product{repository: repository, stockRepository: stockRepository}
 }

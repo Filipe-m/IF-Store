@@ -50,6 +50,8 @@ func main() {
 	app.Put("/stock/:id", stockHandler.UpdateStock)
 	app.Get("/stock/:productId", stockHandler.FindStock)
 
+	app.Get("/product", productHandler.ListProducts)
+
 	if err = app.Listen(":9094"); err != nil {
 		log.Fatalf("[START SERVER FAIL]: %s", err.Error())
 	}

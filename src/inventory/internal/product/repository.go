@@ -10,6 +10,7 @@ type Repository interface {
 	Update(ctx context.Context, product *Product) error
 	FindById(ctx context.Context, id string) (*Product, error)
 	Delete(ctx context.Context, id string) error
+	FindAll(ctx context.Context, limit, page int) ([]Product, error)
 }
 
 type repository struct {
@@ -58,6 +59,23 @@ func (r *repository) Delete(ctx context.Context, id string) error {
 		return err
 	}
 	return nil
+}
+
+func (r *repository) FindAll(ctx context.Context, limit, page int) ([]Product, error) {
+	var products []Product
+	err := r.db.WithContext(ctx).Raw(`
+		SELECT * FROM products
+		INNER JOIN stocks ON products.id = stocks.product_id
+		WHERE stocks.quantity > 0
+		ORDER BY products.updated_at DESC
+		LIMIT ? 
+		OFFSET ?;
+		`, limit, page).Scan(&products).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
 }
 
 func NewRepository(db *gorm.DB) Repository {
