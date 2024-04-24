@@ -9,20 +9,54 @@ type Stock struct {
 	repository stock.Repository
 }
 
-func (p *Stock) UpdateStock(c *fiber.Ctx) error {
+func (p *Stock) RemoveStock(c *fiber.Ctx) error {
 	var request stock.Stock
 	if err := c.BodyParser(&request); err != nil {
 		return err
 	}
 
-	request.ID = c.Params("id")
+	request.ProductID = c.Params("productId")
 
-	err := p.repository.Update(c.Context(), &request)
+	stockModel, err := p.repository.FindByProductId(c.Context(), request.ProductID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
 	}
 
-	return c.Status(fiber.StatusCreated).JSON(request)
+	if stockModel.Quantity < request.Quantity {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"message": "Insufficient stock"})
+	}
+
+	stockModel.Quantity = stockModel.Quantity - request.Quantity
+
+	err = p.repository.Update(c.Context(), stockModel)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(stockModel)
+}
+
+func (p *Stock) AddStock(c *fiber.Ctx) error {
+	var request stock.Stock
+	if err := c.BodyParser(&request); err != nil {
+		return err
+	}
+
+	request.ProductID = c.Params("productId")
+
+	stockModel, err := p.repository.FindByProductId(c.Context(), request.ProductID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
+	}
+
+	stockModel.Quantity += request.Quantity
+
+	err = p.repository.Update(c.Context(), stockModel)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(stockModel)
 }
 
 func (p *Stock) FindStock(c *fiber.Ctx) error {

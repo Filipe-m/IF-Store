@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
 	"inventory/cmd/handlers"
 	"inventory/internal/config"
@@ -20,6 +21,7 @@ func init() {
 
 func main() {
 	app := fiber.New()
+	app.Use(logger.New())
 
 	cfg := config.Load()
 
@@ -47,7 +49,8 @@ func main() {
 	app.Get("/product/:id", productHandler.FindProduct)
 	app.Delete("/product/:id", productHandler.DeleteProduct)
 
-	app.Put("/stock/:id", stockHandler.UpdateStock)
+	app.Put("/stock/:productId/add", stockHandler.AddStock)
+	app.Put("/stock/:productId/remove", stockHandler.RemoveStock)
 	app.Get("/stock/:productId", stockHandler.FindStock)
 
 	app.Get("/product", productHandler.ListProducts)

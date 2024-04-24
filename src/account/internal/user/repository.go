@@ -25,7 +25,7 @@ func (r *repository) Create(ctx context.Context, user *User) error {
 }
 
 func (r *repository) Update(ctx context.Context, user *User) error {
-	err := r.db.WithContext(ctx).Model(user).Where("id = ?", user.ID).UpdateColumns(User{
+	err := r.db.WithContext(ctx).Model(user).UpdateColumns(User{
 		Username: user.Username,
 		Email:    user.Email,
 	}).Error

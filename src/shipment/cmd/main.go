@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
 	"log"
 	"shipment/cmd/handlers"
@@ -19,6 +20,7 @@ func init() {
 
 func main() {
 	app := fiber.New()
+	app.Use(logger.New())
 
 	cfg := config.Load()
 

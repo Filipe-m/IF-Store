@@ -25,14 +25,14 @@ func (r *repository) Create(ctx context.Context, stock *Stock) error {
 }
 
 func (r *repository) Update(ctx context.Context, stock *Stock) error {
-	err := r.db.WithContext(ctx).Model(stock).Where("id = ?", stock.ID).UpdateColumns(Stock{
+	err := r.db.WithContext(ctx).Model(stock).Where("product_id = ?", stock.ProductID).UpdateColumns(Stock{
 		Quantity: stock.Quantity,
 	}).Error
 	if err != nil {
 		return err
 	}
 
-	err = r.db.WithContext(ctx).First(stock, "id = ?", stock.ID).Error
+	err = r.db.WithContext(ctx).First(stock, "product_id = ?", stock.ProductID).Error
 	if err != nil {
 		return err
 	}
