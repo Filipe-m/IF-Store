@@ -1,0 +1,148 @@
+version: '3'
+services:
+
+  account-db:
+    image: postgres:14.2
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5451:5432'
+
+  notification-db:
+    image: postgres:14.2
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5452:5432'
+
+  shipment-db:
+    image: postgres:14.2
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5453:5432'
+
+  payment-db:
+    image: postgres:14.2
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5454:5432'
+
+  inventory-db:
+    image: postgres:14.2
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5455:5432'
+
+  order-db:
+    image: postgres:14.2
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5456:5432'
+
+  account-app:
+    build:
+      context: ../../../src/account/
+      dockerfile: Dockerfile
+    image: account
+    environment:
+      - POSTGRES_HOST=account-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_SLLMODE=disable
+      - POSTGRES_TIMEZONE=America/Sao_Paulo
+    restart: unless-stopped
+    ports:
+      - "9091:9091"
+    depends_on:
+      - account-db
+
+  notification-app:
+    build:
+      context: ../../../src/notification/
+      dockerfile: Dockerfile
+    image: notification
+    environment:
+      - POSTGRES_HOST=notification-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_SLLMODE=disable
+      - POSTGRES_TIMEZONE=America/Sao_Paulo
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+    depends_on:
+      - notification-db
+
+  shipment-app:
+    build:
+      context: ../../../src/shipment/
+      dockerfile: Dockerfile
+    image: shipment
+    environment:
+      - POSTGRES_HOST=shipment-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_SLLMODE=disable
+      - POSTGRES_TIMEZONE=America/Sao_Paulo
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    depends_on:
+      - shipment-db
+
+  inventory-app:
+    build:
+      context: ../../../src/inventory/
+      dockerfile: Dockerfile
+    image: inventory
+    environment:
+      - POSTGRES_HOST=inventory-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_SLLMODE=disable
+      - POSTGRES_TIMEZONE=America/Sao_Paulo
+    restart: unless-stopped
+    ports:
+      - "9094:9094"
+    depends_on:
+      - inventory-db
+
+  order-app:
+    build:
+      context: ../../../src/order/
+      dockerfile: Dockerfile
+    image: order
+    environment:
+      - POSTGRES_HOST=order-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_SLLMODE=disable
+      - POSTGRES_TIMEZONE=America/Sao_Paulo
+      - INVENTORY_URL=http://inventory-app:9094
+      - NOTIFICATION_URL=http://notification-app:9092
+      - SHIPMENT_URL=http://shipment-app:9093
+    restart: unless-stopped
+    ports:
+      - "9095:9095"
+    depends_on:
+      - order-db

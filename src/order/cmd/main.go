@@ -19,7 +19,7 @@ import (
 func init() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("[LOAD ENVIRONMENT VARIABLES FAIL]: %s", err.Error())
+		log.Printf("[LOAD ENVIRONMENT VARIABLES FAIL]: %s\n", err.Error())
 	}
 }
 

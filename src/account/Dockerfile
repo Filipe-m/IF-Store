@@ -16,4 +16,4 @@ COPY --from=build /server /server
 
 EXPOSE 9091
 
-ENTRYPOINT ["/account"]
+ENTRYPOINT ["/server"]

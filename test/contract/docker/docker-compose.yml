@@ -1,0 +1,34 @@
+version: '3'
+services:
+
+  order-db:
+    image: postgres:14.2
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5456:5432'
+
+  order-app:
+    build:
+      context: ../../../src/order/
+      dockerfile: Dockerfile
+    image: order
+    environment:
+      - POSTGRES_HOST=order-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_SLLMODE=disable
+      - POSTGRES_TIMEZONE=America/Sao_Paulo
+      - INVENTORY_URL=http://host.docker.internal:9094
+      - NOTIFICATION_URL=http://notification-app:9092
+      - SHIPMENT_URL=http://shipment-app:9093
+    restart: unless-stopped
+    ports:
+      - "9095:9095"
+    depends_on:
+      - order-db
+    extra_hosts:
+        - "host.docker.internal:host-gateway"

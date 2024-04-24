@@ -1,0 +1,164 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+      - release/*
+  pull_request_target:
+  merge_group:
+    branches: [ main ]
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    name: Unit Tests
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+        id: go
+
+      - name: Run account tests
+        working-directory: src/account
+        run: go test -p 1 -count=1 ./...
+
+      - name: Run notification tests
+        working-directory: src/notification
+        run: go test -p 1 -count=1 ./...
+
+      - name: Run shipment tests
+        working-directory: src/shipment
+        run: go test -p 1 -count=1 ./...
+
+  contract:
+    needs: [ unit ]
+    runs-on: ubuntu-latest
+    name: Contract Tests
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+        id: go
+
+      - name: Start containers
+        uses: hoverkraft-tech/compose-action@v1.5.1
+        with:
+          compose-file: "./test/contract/docker/docker-compose.yml"
+
+      - name: Run contract tests
+        working-directory: test/contract
+        run: go test -p 1 -count=1 ./...
+
+  integration:
+    needs: [ unit, contract ]
+    runs-on: ubuntu-latest
+    name: Integration Tests
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+        id: go
+
+      - name: Start containers
+        uses: hoverkraft-tech/compose-action@v1.5.1
+        with:
+          compose-file: "./test/integration/docker/docker-compose.yml"
+
+      - name: Run integration tests
+        working-directory: test/integration
+        run: go test -p 1 -count=1 ./...
+
+  component:
+    needs: [ unit, contract, integration ]
+    runs-on: ubuntu-latest
+    name: Component Tests
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+        id: go
+
+      - name: Setup component test environment
+        uses: hoverkraft-tech/compose-action@v1.5.1
+        with:
+          compose-file: "./test/component/docker/docker-compose.yml"
+
+      - name: Run component tests
+        working-directory: test/component
+        run: go test -p 1 -count=1 ./...
+
+  end2end:
+    needs: [ unit, contract, integration, component ]
+    runs-on: ubuntu-latest
+    name: End2End Tests
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+        id: go
+
+      - name: Start containers
+        uses: hoverkraft-tech/compose-action@v1.5.1
+        with:
+          compose-file: "./test/end2end/docker/docker-compose.yml"
+
+      - name: Run end2end tests
+        working-directory: test/end2end
+        run: go test -p 1 -count=1 ./...
+
+  stress:
+    needs: [ unit, contract, integration, component, end2end ]
+    runs-on: ubuntu-latest
+    name: Stress Tests
+    steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v3
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+        id: go
+
+      - name: Start containers
+        uses: hoverkraft-tech/compose-action@v1.5.1
+        with:
+          compose-file: "./test/stress/docker/docker-compose.yml"
+
+      - uses: GuillaumeFalourd/wait-sleep-action@v1
+        with:
+          time: '5'
+
+      - name: Run stress test[User Creation]
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: ./test/stress/create_user.js
+
+      - name: Run stress test[Increment Item Quantity]
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: ./test/stress/add_item_to_order.js
+
+      - name: Run stress test[Finish Order]
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: ./test/stress/finish_order.js

@@ -1,0 +1,29 @@
+version: '3'
+services:
+
+  account-db:
+    image: postgres:14.2
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5451:5432'
+
+  account-app:
+    build:
+      context: ../../../src/account/
+      dockerfile: Dockerfile
+    image: account
+    environment:
+      - POSTGRES_HOST=account-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_SLLMODE=disable
+      - POSTGRES_TIMEZONE=America/Sao_Paulo
+    restart: unless-stopped
+    ports:
+      - "9091:9091"
+    depends_on:
+      - account-db

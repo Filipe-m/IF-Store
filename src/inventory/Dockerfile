@@ -14,6 +14,6 @@ WORKDIR /
 
 COPY --from=build /server /server
 
-EXPOSE 9091
+EXPOSE 9094
 
-ENTRYPOINT ["/account"]
+ENTRYPOINT ["/server"]
