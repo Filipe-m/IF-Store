@@ -22,7 +22,7 @@ export default function () {
 
     const body = {username: username, email: email}
 
-    const res = http.post('http://localhost:9091/users', JSON.stringify(body), {
+    const res = http.post('http://127.0.0.1:9091/users', JSON.stringify(body), {
         headers: {'Content-Type': 'application/json'},
     });
 

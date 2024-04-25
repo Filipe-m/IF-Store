@@ -26,7 +26,7 @@ export default function () {
     const quantity = Math.floor(Math.random() * 100) + 1;
 
     const bodyUser = {username: username, email: email};
-    const resUser = http.post('http://localhost:9091/users', JSON.stringify(bodyUser), {
+    const resUser = http.post('http://127.0.0.1:9091/users', JSON.stringify(bodyUser), {
         headers: {'Content-Type': 'application/json'},
     });
 
@@ -37,7 +37,7 @@ export default function () {
     const userId = JSON.parse(resUser.body).id;
 
     const bodyProduct = {name: productName, description: productDescription, price: price};
-    const resProduct = http.post('http://localhost:9094/product/register', JSON.stringify(bodyProduct), {
+    const resProduct = http.post('http://127.0.0.1:9094/product/register', JSON.stringify(bodyProduct), {
         headers: {'Content-Type': 'application/json'},
     });
 
@@ -48,7 +48,7 @@ export default function () {
     const productId = JSON.parse(resProduct.body).id;
 
     const bodyStock = {quantity: quantity};
-    const resStock = http.put(`http://localhost:9094/stock/${productId}/add`, JSON.stringify(bodyStock), {
+    const resStock = http.put(`http://127.0.0.1:9094/stock/${productId}/add`, JSON.stringify(bodyStock), {
         headers: {'Content-Type': 'application/json'},
     });
 
@@ -57,7 +57,7 @@ export default function () {
     });
 
     const bodyOrderItem = {product_id: productId, quantity: quantity};
-    const resOrderItem = http.post('http://localhost:9095/order-item', JSON.stringify(bodyOrderItem), {
+    const resOrderItem = http.post('http://127.0.0.1:9095/order-item', JSON.stringify(bodyOrderItem), {
         headers: {'Content-Type': 'application/json', 'USER-ID': userId},
     });
 
@@ -68,7 +68,7 @@ export default function () {
     const orderId = JSON.parse(resOrderItem.body).id;
 
     const bodyFinishOrder = {order_id: orderId, payment_data: "lorem"};
-    const resFinishOrder = http.post('http://localhost:9095/order/finish', JSON.stringify(bodyFinishOrder), {
+    const resFinishOrder = http.post('http://127.0.0.1:9095/order/finish', JSON.stringify(bodyFinishOrder), {
         headers: {'Content-Type': 'application/json', 'USER-ID': userId},
     });
 
