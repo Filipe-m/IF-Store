@@ -146,7 +146,7 @@ jobs:
 
       - uses: GuillaumeFalourd/wait-sleep-action@v1
         with:
-          time: '5'
+          time: '30'
 
       - name: Run stress test[User Creation]
         uses: grafana/k6-action@v0.3.1
