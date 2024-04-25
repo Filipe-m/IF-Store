@@ -152,13 +152,16 @@ jobs:
         uses: grafana/k6-action@v0.3.1
         with:
           filename: ./test/stress/create_user.js
+          flags: --out json=create_user-results.json
 
       - name: Run stress test[Increment Item Quantity]
         uses: grafana/k6-action@v0.3.1
         with:
           filename: ./test/stress/add_item_to_order.js
+          flags: --out json=add_item_to_order-results.json
 
       - name: Run stress test[Finish Order]
         uses: grafana/k6-action@v0.3.1
         with:
           filename: ./test/stress/finish_order.js
+          flags: --out json=finish_order-results.json
