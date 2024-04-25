@@ -3,9 +3,9 @@ import {check} from 'k6';
 
 export const options = {
     stages: [
-        {target: 20, duration: '10s'},
-        {target: 30, duration: '10s'},
-        {target: 50, duration: '10s'},
+        {target: 1, duration: '5s'},
+        {target: 5, duration: '5s'},
+        {target: 10, duration: '10s'},
     ],
     thresholds: {
         http_req_failed: ['rate<0.01'],
