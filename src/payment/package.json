@@ -1,0 +1,23 @@
+{
+  "name": "payment",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "db": "prisma generate",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Filipe Moreira Coelho",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^10.8.0",
+    "prisma": "^5.13.0",
+    "prisma-erd-generator": "^1.11.2"
+  },
+  "type": "module"
+}
