@@ -1,0 +1,453 @@
+openapi: 3.0.1
+info:
+  title: "IF-Store"
+  contact: {}
+  version: 1.0.0
+servers:
+  - url: http://localhost:9091
+    description: "Conta"
+  - url: http://localhost:9092
+    description: "Notificação"
+  - url: http://localhost:9093
+    description: "Envio"
+  - url: http://localhost:9094
+    description: "Inventário"
+tags:
+  - name: Conta
+    description: APIs relacionadas à gestão de contas de usuário
+  - name: Inventário
+    description: APIs relacionadas à gestão de inventário de produtos
+  - name: Notificação
+    description: APIs relacionadas ao envio de mensagens de notificação
+  - name: Pedido
+    description: APIs relacionadas ao gerenciamento de pedidos de compra
+  - name: Envio
+    description: APIs relacionadas ao envio de itens e gerenciamento de remessas
+paths:
+  /users:
+    post:
+      tags:
+        - Conta
+      summary: CreateUser
+      description: Cria um novo usuário
+      operationId: createuser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                username:
+                  type: string
+                  example: example_user
+        required: false
+      responses:
+        "200":
+          description: ""
+          content: {}
+      x-codegen-request-body-name: body
+  /users/{id}:
+    get:
+      tags:
+        - Conta
+      summary: FindUser
+      description: Busca um usuário pelo ID
+      operationId: finduser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content: {}
+    put:
+      tags:
+        - Conta
+      summary: UpdateUser
+      description: Atualiza um usuário
+      operationId: updateuser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                username:
+                  type: string
+                  example: example
+        required: false
+      responses:
+        "200":
+          description: ""
+          content: {}
+      x-codegen-request-body-name: body
+    delete:
+      tags:
+        - Conta
+      summary: DeleteUser
+      description: Deleta um usuário
+      operationId: deleteuser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content: {}
+  /product:
+    get:
+      tags:
+        - Inventário
+      summary: ListProductsInStock
+      description: Lista todos os produtos em estoque
+      operationId: listproductsinstock
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content: {}
+    post:
+      tags:
+        - Inventário
+      summary: RegisterProduct
+      description: Registra um novo produto
+      operationId: registerproduct
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  example: Sanduicheira Elétrica Grill Click 220V
+                name:
+                  type: string
+                  example: Sanduicheira
+                price:
+                  type: number
+                  example: 50.5
+        required: false
+      responses:
+        "200":
+          description: ""
+          content: {}
+      x-codegen-request-body-name: body
+  /product/{productId}:
+    get:
+      tags:
+        - Inventário
+      summary: GetProduct
+      description: Busca um produto pelo ID
+      operationId: getproduct
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content: {}
+    put:
+      tags:
+        - Inventário
+      summary: UpdateProduct
+      description: Atualiza um produto
+      operationId: updateproduct
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  example: Sanduicheira Elétrica Grill Click 220V
+                name:
+                  type: string
+                  example: Sanduicheira Grill
+                price:
+                  type: number
+                  example: 50.5
+        required: false
+      responses:
+        "200":
+          description: ""
+          content: {}
+      x-codegen-request-body-name: body
+    delete:
+      tags:
+        - Inventário
+      summary: DeleteProduct
+      description: Deleta um produto
+      operationId: deleteproduct
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content: {}
+  /stock/{productId}:
+    get:
+      tags:
+        - Inventário
+      summary: FindStock
+      description: Busca o estoque de um produto
+      operationId: findstock
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content: {}
+  /stock/{productId}/add:
+    put:
+      tags:
+        - Inventário
+      summary: AddStock
+      description: Adiciona estoque a um produto
+      operationId: addstock
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: number
+                  example: 20.0
+        required: false
+      responses:
+        "200":
+          description: ""
+          content: {}
+      x-codegen-request-body-name: body
+  /stock/{productId}/remove:
+    put:
+      tags:
+        - Inventário
+      summary: RemoveStock
+      description: Remove estoque de um produto
+      operationId: removestock
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: number
+                  example: 20.0
+        required: false
+      responses:
+        "200":
+          description: ""
+          content: {}
+      x-codegen-request-body-name: body
+  /send-message:
+    post:
+      tags:
+        - Notificação
+      summary: SendMessage
+      description: Envia uma mensagem de notificação
+      operationId: sendMmessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Your order has been shipped!
+                order_id:
+                  type: string
+                  example: ""
+        required: false
+      responses:
+        "200":
+          description: ""
+          content: {}
+      x-codegen-request-body-name: body
+  /order-item:
+    post:
+      tags:
+        - Pedido
+      summary: AddItemToOrder
+      description: Adiciona um item a um pedido
+      operationId: additemtoorder
+      parameters:
+        - name: USER-ID
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: string
+                  example: ""
+                quantity:
+                  type: number
+                  example: 2.0
+        required: false
+      responses:
+        "200":
+          description: ""
+          content: {}
+      x-codegen-request-body-name: body
+  /order/finish:
+    post:
+      tags:
+        - Pedido
+      summary: FinishOrder
+      description: Finaliza um pedido
+      operationId: finishorder
+      parameters:
+        - name: USER-ID
+          in: header
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                order_id:
+                  type: string
+                  example: ""
+                payment_data:
+                  type: string
+                  example: lorem
+        required: false
+      responses:
+        "200":
+          description: ""
+          content: {}
+      x-codegen-request-body-name: body
+  /send-items/{orderId}:
+    post:
+      tags:
+        - Envio
+      summary: SendItems
+      description: Envia itens
+      operationId: senditems
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  product_id:
+                    type: string
+                    example: 3fb8a147-7ec3-4dd9-85a9-4e59b3bf3a85
+                  quantity:
+                    type: number
+                    example: 2.0
+        required: false
+      responses:
+        "200":
+          description: ""
+          content: {}
+      x-codegen-request-body-name: body
+  /shipment/{id}:
+    get:
+      tags:
+        - Envio
+      summary: GetShipment
+      description: Busca um envio pelo ID
+      operationId: getshipment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content: {}
+    delete:
+      tags:
+        - Envio
+      summary: DeleteShipment
+      description: Deleta um envio
+      operationId: deleteshipment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content: {}
+components: {}
+x-original-swagger-version: "2.0"
