@@ -158,3 +158,23 @@ services:
       - "9095:9095"
     depends_on:
       - order-db
+
+  payment-app:
+    build:
+      context: ../../src/payment/
+      dockerfile: Dockerfile
+    image: payment
+    environment:
+      - POSTGRES_HOST=payment-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_SLLMODE=disable
+      - POSTGRES_TIMEZONE=America/Sao_Paulo
+      - PORT=9096
+    restart: unless-stopped
+    ports:
+      - "9096:9096"
+    depends_on:
+      - payment-db

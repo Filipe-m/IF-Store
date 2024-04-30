@@ -2,11 +2,15 @@ import { PrismaClient } from '@prisma/client'
 import express from 'express'
 import valid_credit_card from './helpers/creditCardValidator.js'
 const prisma = new PrismaClient()
-
 const app = express()
+
 app.use(
   express.json({
     verify: (req, res, buf, encoding) => {
+      if (buf.length === 0) {
+        return
+      }
+
       try {
         JSON.parse(buf)
       } catch (e) {
@@ -17,83 +21,92 @@ app.use(
 )
 
 app.get('/paymentMethod/:userId', async (req, res) => {
-  const userId = req.params.userId
+  try {
+    const userId = req.params.userId
 
-  if(isNaN(parseInt(userId))) {
-    return res.status(400).json({ message: 'Invalid user ID' })
-  }
-
-  const getUser = await prisma.paymentMethod.findMany({
-    where: {
-      userId: userId,
-      paymentType: {
-        not: 'CREDIT_CARD'
-      }
+    if (isNaN(parseInt(userId))) {
+      return res.status(400).json({ message: 'Invalid user ID' })
     }
-  })
 
-  if (getUser.length === 0) {
-    await prisma.paymentMethod.create({
-      data: {
+    const getUser = await prisma.paymentMethod.findMany({
+      where: {
         userId: userId,
-        paymentType: 'BOLETO'
+        paymentType: {
+          not: 'CREDIT_CARD'
+        }
       }
     })
-    await prisma.paymentMethod.create({
-      data: {
+
+    if (getUser.length === 0) {
+      await prisma.paymentMethod.create({
+        data: {
+          userId: userId,
+          paymentType: 'BOLETO'
+        }
+      })
+      await prisma.paymentMethod.create({
+        data: {
+          userId: userId,
+          paymentType: 'PIX'
+        }
+      })
+    }
+
+    const noCards = await prisma.paymentMethod.findMany({
+      where: {
         userId: userId,
-        paymentType: 'PIX'
+        active: true,
+        paymentType: {
+          not: 'CREDIT_CARD'
+        }
+      },
+      select: {
+        paymentType: true
       }
     })
-  }
 
-  const noCards = await prisma.paymentMethod.findMany({
-    where: {
-      userId: userId,
-      active: true,
-      paymentType: {
-        not: 'CREDIT_CARD'
+    const cards = await prisma.paymentMethod.findMany({
+      where: {
+        userId: userId,
+        active: true,
+        paymentType: 'CREDIT_CARD'
+      },
+      select: {
+        paymentType: true,
+        cardNumber: true,
+        cardExpiration: true,
+        cardCvv: true
       }
-    },
-    select: {
-      paymentType: true
+    })
+
+    let response
+
+    if (cards.length !== 0) {
+      response = [...noCards, ...cards]
+    } else {
+      response = noCards
     }
-  })
 
-  const cards = await prisma.paymentMethod.findMany({
-    where: {
-      userId: userId,
-      active: true,
-      paymentType: 'CREDIT_CARD'
-    },
-    select: {
-      paymentType: true,
-      cardNumber: true,
-      cardExpiration: true,
-      cardCvv: true
-    }
-  })
-
-  let response
-
-  if (cards.length !== 0) {
-    response = [...noCards, ...cards]
-  } else {
-    response = noCards
+    return res.status(200).json(response)
+  } catch (error) {
+    return res.status(500).json({ message: 'An error occurred' })
   }
-
-  res.send(response)
-  return res.status(200)
 })
 
 app.post('/paymentMethod/:userId', async (req, res) => {
   const userId = req.params.userId
-  
-  if(isNaN(parseInt(userId))) {
+
+  if (isNaN(parseInt(userId))) {
     return res.status(400).json({ message: 'Invalid user ID' })
   }
 
+  if (req.body[0] === undefined) {
+    return res
+      .status(400)
+      .json({ message: 'Invalid number of payment methods' })
+  }
   const { number, expiration, cvv } = req.body[0]
+
   if (!number || !expiration || !cvv) {
     return res.status(400).json({ message: 'Missing parameters' })
   }
@@ -128,8 +141,4 @@ app.post('/paymentMethod/:userId', async (req, res) => {
   return res.status(200).json({ message: 'Card created' })
 })
 
-
-const PORT = process.env.PORT || 3000 // Default to port 3000 if PORT environment variable is not set
-app.listen(PORT, () => {
-  console.log(`Listening on port ${PORT}`)
-})
+export default app

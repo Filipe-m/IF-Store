@@ -35,13 +35,11 @@ Um servidor de um marktplace
 }]
 ```
 
-
-
 ## Stack utilizada
 
 **Back-end:** Node, Go
 
 ## Autores
 
-- [@Filipe-m ](https://www.github.com/octokatherine)
-- [@victorvcruz  ](https://github.com/victorvcruz)
+- [@Filipe-m](https://www.github.com/octokatherine)
+- [@victorvcruz](https://github.com/victorvcruz)
