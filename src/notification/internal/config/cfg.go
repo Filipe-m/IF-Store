@@ -12,8 +12,21 @@ type Database struct {
 	TimeZone  string
 }
 
+type Mail struct {
+	Host     string
+	Port     string
+	Username string
+	Password string
+}
+
+type Service struct {
+	AccountURL string
+}
+
 type Config struct {
 	Database Database
+	Mail     Mail
+	Service  Service
 }
 
 func Load() *Config {
@@ -26,6 +39,15 @@ func Load() *Config {
 			DbName:    os.Getenv("POSTGRES_DB"),
 			SSLMode:   os.Getenv("POSTGRES_SLLMODE"),
 			TimeZone:  os.Getenv("POSTGRES_TIMEZONE"),
+		},
+		Mail: Mail{
+			Host:     os.Getenv("MAIL_HOST"),
+			Port:     os.Getenv("MAIL_PORT"),
+			Username: os.Getenv("MAIL_USERNAME"),
+			Password: os.Getenv("MAIL_PASSWORD"),
+		},
+		Service: Service{
+			AccountURL: os.Getenv("ACCOUNT_URL"),
 		},
 	}
 }

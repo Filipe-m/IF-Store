@@ -6,7 +6,7 @@ import (
 )
 
 type User struct {
-	repository message.Repository
+	service message.Service
 }
 
 func (a *User) SendMessage(c *fiber.Ctx) error {
@@ -16,7 +16,7 @@ func (a *User) SendMessage(c *fiber.Ctx) error {
 		return err
 	}
 
-	err := a.repository.Create(c.Context(), &request)
+	err := a.service.SendMessage(c.Context(), &request)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
 	}
@@ -24,6 +24,6 @@ func (a *User) SendMessage(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(request)
 }
 
-func NewMessageHandler(repository message.Repository) *User {
-	return &User{repository: repository}
+func NewMessageHandler(service message.Service) *User {
+	return &User{service: service}
 }

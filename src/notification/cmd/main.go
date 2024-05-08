@@ -6,7 +6,10 @@ import (
 	"github.com/joho/godotenv"
 	"log"
 	"notification/cmd/handlers"
+	"notification/internal/account"
+	mail2 "notification/internal/chat/mail"
 	"notification/internal/config"
+	"notification/internal/httputils/request"
 	"notification/internal/message"
 	"notification/internal/platform"
 )
@@ -36,7 +39,13 @@ func main() {
 
 	repository := message.NewRepository(connect)
 
-	handler := handlers.NewMessageHandler(repository)
+	accountClient := account.NewClient(request.New(cfg.Service.AccountURL))
+
+	mail := mail2.NewClient(cfg.Mail)
+
+	service := message.NewService(repository, mail, accountClient)
+
+	handler := handlers.NewMessageHandler(service)
 
 	// Routes
 	app.Post("/send-message", handler.SendMessage)

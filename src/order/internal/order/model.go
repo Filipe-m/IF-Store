@@ -44,3 +44,15 @@ type FinishOrder struct {
 	PaymentData string `json:"payment_data"`
 	OrderID     string `json:"order_id"`
 }
+
+func (i *Item) CalculateTotalPrice() decimal.Decimal {
+	return i.UnitPrice.Mul(decimal.NewFromInt(int64(i.Quantity)))
+}
+
+func (o *Order) ProductIDs() []string {
+	products := make([]string, len(o.Items))
+	for i, item := range o.Items {
+		products[i] = item.ProductID
+	}
+	return products
+}

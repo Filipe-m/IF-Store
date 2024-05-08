@@ -11,6 +11,7 @@ type Client interface {
 	RemoveItemsFromStock(ctx context.Context, products []Product) error
 	CheckStock(ctx context.Context, products []Product) error
 	FindItemPrice(ctx context.Context, productId string) (decimal.Decimal, error)
+	GetProducts(ctx context.Context, productIds []string) ([]Product, error)
 }
 
 type client struct {
@@ -25,6 +26,18 @@ func (c *client) RemoveItemsFromStock(ctx context.Context, products []Product) e
 		}
 	}
 	return nil
+}
+
+func (c *client) GetProducts(ctx context.Context, productIds []string) ([]Product, error) {
+	products := make([]Product, len(productIds))
+	for i, id := range productIds {
+		err := c.req.Get(ctx, fmt.Sprintf("/product/%s", id), request.WithResponse(&products[i]))
+		if err != nil {
+			return nil, err
+		}
+		products[i].ID = id
+	}
+	return products, nil
 }
 
 func (c *client) CheckStock(ctx context.Context, products []Product) error {

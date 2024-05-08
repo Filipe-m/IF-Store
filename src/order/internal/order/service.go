@@ -3,7 +3,9 @@ package order
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/shopspring/decimal"
+	"log"
 	"order/internal/inventory"
 	"order/internal/notification"
 	"order/internal/payment"
@@ -121,33 +123,54 @@ func (s *service) FinishOrder(ctx context.Context, request *FinishOrder) error {
 		return err
 	}
 
-	sendItems := make([]shipment.Item, len(order.Items))
-	for i := range order.Items {
-		sendItems[i] = shipment.Item{
-			ProductId: order.Items[i].ProductID,
-			Quantity:  order.Items[i].Quantity,
+	go func() {
+		sendItems := make([]shipment.Item, len(order.Items))
+		for i := range order.Items {
+			sendItems[i] = shipment.Item{
+				ProductId: order.Items[i].ProductID,
+				Quantity:  order.Items[i].Quantity,
+			}
 		}
-	}
 
-	err = s.shipment.SendItems(ctx, sendItems, request.OrderID)
-	if err != nil {
-		return err
-	}
+		err = s.shipment.SendItems(ctx, sendItems, request.OrderID)
+		if err != nil {
+			log.Println("error sending items to shipment service")
+			return
+		}
 
-	err = s.notification.SendMessage(ctx, notification.Message{
-		UserID:  order.UserID,
-		OrderId: order.ID,
-		Message: "Your order has been shipped",
-	})
-	if err != nil {
-		return err
-	}
+		products, err = s.inventory.GetProducts(ctx, order.ProductIDs())
+		if err != nil {
+			log.Println("error getting product")
+			return
+		}
 
-	order.Status = FINISHED
-	err = s.repository.Update(ctx, order)
-	if err != nil {
-		return err
-	}
+		msg := fmt.Sprintf("Your order has been shipped\n\nTracking number: %s\n\n", request.OrderID)
+		for i := range products {
+			for j := range order.Items {
+				if products[i].ID == order.Items[j].ProductID {
+					msg = fmt.Sprintf("%s%s - Quantity %d - TotalPrice: R$%2.f\n", msg, products[i].Description, order.Items[j].Quantity, order.Items[j].CalculateTotalPrice().InexactFloat64())
+					break
+				}
+			}
+		}
+
+		err = s.notification.SendMessage(ctx, notification.Message{
+			UserID:  order.UserID,
+			OrderId: order.ID,
+			Message: msg,
+		})
+		if err != nil {
+			log.Println("error sending message to notification service")
+			return
+		}
+
+		order.Status = FINISHED
+		err = s.repository.Update(ctx, order)
+		if err != nil {
+			log.Println("error updating order status")
+			return
+		}
+	}()
 
 	return nil
 }

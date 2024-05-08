@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 	"shipment/internal/ship"
+	"time"
 )
 
 type Shipment struct {
@@ -10,6 +11,8 @@ type Shipment struct {
 }
 
 func (s *Shipment) SendItems(c *fiber.Ctx) error {
+
+	time.Sleep(15 * time.Second)
 
 	var request []ship.Item
 	if err := c.BodyParser(&request); err != nil {
