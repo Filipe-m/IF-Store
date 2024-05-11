@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
 	"log"
@@ -48,11 +49,14 @@ func main() {
 
 	service := order.NewService(repository, inventory, payment, notification, shipment)
 
-	handler := handlers.NewOrderHandler(repository, service)
+	handler := handlers.NewOrderHandler(repository, inventory, service)
 
 	// Routes
+	app.Use(cors.New())
 	app.Post("/order-item", handler.AddItemToOrder)
+	app.Delete("/order-item", handler.RemoveItemToOrder)
 	app.Get("/order/:id", handler.FindOrder)
+	app.Get("/order-actual", handler.FindActualOrder)
 	app.Delete("/order/:id", handler.DeleteOrder)
 	app.Post("/order/finish", handler.FinishOrder)
 

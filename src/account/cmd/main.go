@@ -6,6 +6,7 @@ import (
 	"account/internal/platform"
 	"account/internal/user"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
 	"log"
@@ -39,6 +40,7 @@ func main() {
 	handler := handlers.NewUserHandler(repository)
 
 	// Routes
+	app.Use(cors.New())
 	app.Post("/users", handler.CreateUser)
 	app.Put("/users/:id", handler.UpdateUser)
 	app.Get("/users/:id", handler.FindUser)

@@ -93,6 +93,7 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_SLLMODE=disable
       - POSTGRES_TIMEZONE=America/Sao_Paulo
+      - ACCOUNT_URL=http://account-app:9091
     restart: unless-stopped
     ports:
       - "9092:9092"
@@ -159,22 +160,43 @@ services:
     depends_on:
       - order-db
 
-  payment-app:
+  #  payment-app:
+  #    build:
+  #      context: ../../src/payment/
+  #      dockerfile: Dockerfile
+  #    image: payment
+  #    environment:
+  #      - POSTGRES_HOST=payment-db
+  #      - POSTGRES_USER=postgres
+  #      - POSTGRES_PASSWORD=postgres
+  #      - POSTGRES_PORT=5432
+  #      - POSTGRES_DB=postgres
+  #      - POSTGRES_SLLMODE=disable
+  #      - POSTGRES_TIMEZONE=America/Sao_Paulo
+  #      - PORT=9096
+  #    restart: unless-stopped
+  #    ports:
+  #      - "9096:9096"
+  #    depends_on:
+  #      - payment-db
+
+  frontend-app:
     build:
-      context: ../../src/payment/
+      context: ../../frontend/if-store/
       dockerfile: Dockerfile
-    image: payment
+    image: frontend
     environment:
-      - POSTGRES_HOST=payment-db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=postgres
-      - POSTGRES_SLLMODE=disable
-      - POSTGRES_TIMEZONE=America/Sao_Paulo
-      - PORT=9096
+      - REACT_APP_INVENTORY_URL=http://localhost:9094
+      - REACT_APP_ACCOUNT_URL=http://localhost:9091
+      - REACT_APP_PAYMENT_URL=
+      - REACT_APP_SHIPMENT_URL=http://localhost:9093
+      - REACT_APP_ORDER_URL=http://localhost:9095
     restart: unless-stopped
     ports:
-      - "9096:9096"
+      - "3000:3000"
     depends_on:
-      - payment-db
+      - inventory-app
+      - account-app
+      - order-app
+      - shipment-app
+      - notification-app

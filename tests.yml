@@ -133,19 +133,18 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v3
 
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          build: npm run build
+          start: npm start
+          browser: chrome
+
       - name: Start containers
         uses: hoverkraft-tech/compose-action@v1.5.1
         with:
           compose-file: "./test/end2end/docker/docker-compose.yml"
 
-      - name: Install npm dependencies
-        run: |
-          sudo apt update
-          sudo apt-get install nodejs
-          sudo apt install npm
-
       - name: Run end2end tests
         working-directory: frontend/if-store
-        run: |
-          npm install
-          npm run cypress:run
+        run: npm run cypress:run
