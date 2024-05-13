@@ -14,6 +14,7 @@ import (
 
 type Service interface {
 	AddItemToOrder(ctx context.Context, userId string, item *Item) (*Order, error)
+	RemoveItemToOrder(ctx context.Context, userId string, item *Item) (*Order, error)
 	FinishOrder(ctx context.Context, request *FinishOrder) error
 }
 
@@ -67,6 +68,34 @@ func (s *service) AddItemToOrder(ctx context.Context, userId string, item *Item)
 	order.TotalAmount = order.TotalAmount.Add(totalItemPrice)
 
 	err = s.repository.Update(ctx, order)
+	if err != nil {
+		return nil, err
+	}
+
+	return order, nil
+}
+
+func (s *service) RemoveItemToOrder(ctx context.Context, userId string, item *Item) (*Order, error) {
+
+	order, err := s.repository.ExistOrderByStatus(ctx, userId, PENDING)
+	if err != nil {
+		return nil, err
+	}
+
+	if order == nil {
+		return nil, errors.New("order not found")
+	}
+
+	item.UnitPrice, err = s.inventory.FindItemPrice(ctx, item.ProductID)
+	if err != nil {
+		return nil, err
+	}
+
+	totalItemPrice := item.UnitPrice.Mul(decimal.NewFromInt(int64(item.Quantity)))
+
+	order.TotalAmount = order.TotalAmount.Sub(totalItemPrice)
+
+	err = s.repository.DeleteItem(ctx, item.ID, order)
 	if err != nil {
 		return nil, err
 	}

@@ -3,6 +3,7 @@ package mail
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/smtp"
 	"notification/internal/chat"
 	"notification/internal/config"
@@ -16,6 +17,11 @@ type client struct {
 func (c *client) SendMessage(ctx context.Context, to string, message chat.Message) error {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*30)
 	defer cancel()
+
+	if c.cfg.Username == "" || c.cfg.Password == "" {
+		log.Println("mail: username or password is empty")
+		return nil
+	}
 
 	auth := smtp.PlainAuth("", c.cfg.Username, c.cfg.Password, c.cfg.Host)
 

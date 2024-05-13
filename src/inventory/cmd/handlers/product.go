@@ -86,7 +86,9 @@ func (p *Product) ListProducts(c *fiber.Ctx) error {
 		page = page - 1
 	}
 
-	response, err := p.repository.FindAll(c.Context(), 25, page*25)
+	limit := c.QueryInt("limit", 25)
+
+	response, err := p.repository.FindAll(c.Context(), limit, page*25)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"message": err.Error()})
 	}

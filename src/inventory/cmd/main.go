@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
 	"inventory/cmd/handlers"
@@ -44,6 +45,7 @@ func main() {
 	stockHandler := handlers.NewStockHandler(stockRepository)
 
 	// Routes
+	app.Use(cors.New())
 	app.Post("/product/register", productHandler.RegisterProduct)
 	app.Put("/product/:id", productHandler.UpdateProduct)
 	app.Get("/product/:id", productHandler.FindProduct)

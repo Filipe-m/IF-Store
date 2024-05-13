@@ -64,7 +64,7 @@ func (r *repository) Delete(ctx context.Context, id string) error {
 func (r *repository) FindAll(ctx context.Context, limit, page int) ([]Product, error) {
 	var products []Product
 	err := r.db.WithContext(ctx).Raw(`
-		SELECT * FROM products
+		SELECT products.* FROM products
 		INNER JOIN stocks ON products.id = stocks.product_id
 		WHERE stocks.quantity > 0
 		ORDER BY products.updated_at DESC

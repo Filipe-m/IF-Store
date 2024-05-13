@@ -8,6 +8,8 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5451:5432'
+    volumes:
+      - ./account_data/volume:/var/lib/postgresql/data
 
   notification-db:
     image: postgres:14.2
@@ -16,6 +18,8 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5452:5432'
+    volumes:
+      - ./notification_data/volume:/var/lib/postgresql/data
 
   shipment-db:
     image: postgres:14.2
@@ -24,6 +28,8 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5453:5432'
+    volumes:
+      - ./shipment_data/volume:/var/lib/postgresql/data
 
   payment-db:
     image: postgres:14.2
@@ -32,6 +38,8 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5454:5432'
+    volumes:
+      - ./payment_data/volume:/var/lib/postgresql/data
 
   inventory-db:
     image: postgres:14.2
@@ -40,6 +48,8 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5455:5432'
+    volumes:
+      - ./inventory_data/volume:/var/lib/postgresql/data
 
   order-db:
     image: postgres:14.2
@@ -48,10 +58,12 @@ services:
       - POSTGRES_PASSWORD=postgres
     ports:
       - '5456:5432'
+    volumes:
+      - ./order_data/volume:/var/lib/postgresql/data
 
   account-app:
     build:
-      context: ../../../src/account/
+      context: ../../src/account/
       dockerfile: Dockerfile
     image: account
     environment:
@@ -70,7 +82,7 @@ services:
 
   notification-app:
     build:
-      context: ../../../src/notification/
+      context: ../../src/notification/
       dockerfile: Dockerfile
     image: notification
     environment:
@@ -81,6 +93,7 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_SLLMODE=disable
       - POSTGRES_TIMEZONE=America/Sao_Paulo
+      - ACCOUNT_URL=http://account-app:9091
     restart: unless-stopped
     ports:
       - "9092:9092"
@@ -89,7 +102,7 @@ services:
 
   shipment-app:
     build:
-      context: ../../../src/shipment/
+      context: ../../src/shipment/
       dockerfile: Dockerfile
     image: shipment
     environment:
@@ -108,7 +121,7 @@ services:
 
   inventory-app:
     build:
-      context: ../../../src/inventory/
+      context: ../../src/inventory/
       dockerfile: Dockerfile
     image: inventory
     environment:
@@ -127,7 +140,7 @@ services:
 
   order-app:
     build:
-      context: ../../../src/order/
+      context: ../../src/order/
       dockerfile: Dockerfile
     image: order
     environment:
@@ -146,3 +159,44 @@ services:
       - "9095:9095"
     depends_on:
       - order-db
+
+  #  payment-app:
+  #    build:
+  #      context: ../../src/payment/
+  #      dockerfile: Dockerfile
+  #    image: payment
+  #    environment:
+  #      - POSTGRES_HOST=payment-db
+  #      - POSTGRES_USER=postgres
+  #      - POSTGRES_PASSWORD=postgres
+  #      - POSTGRES_PORT=5432
+  #      - POSTGRES_DB=postgres
+  #      - POSTGRES_SLLMODE=disable
+  #      - POSTGRES_TIMEZONE=America/Sao_Paulo
+  #      - PORT=9096
+  #    restart: unless-stopped
+  #    ports:
+  #      - "9096:9096"
+  #    depends_on:
+  #      - payment-db
+
+  frontend-app:
+    build:
+      context: ../../frontend/if-store/
+      dockerfile: Dockerfile
+    image: frontend
+    environment:
+      - REACT_APP_INVENTORY_URL=http://localhost:9094
+      - REACT_APP_ACCOUNT_URL=http://localhost:9091
+      - REACT_APP_PAYMENT_URL=
+      - REACT_APP_SHIPMENT_URL=http://localhost:9093
+      - REACT_APP_ORDER_URL=http://localhost:9095
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - inventory-app
+      - account-app
+      - order-app
+      - shipment-app
+      - notification-app
