@@ -1,17 +1,19 @@
 openapi: 3.0.1
 info:
-  title: "IF-Store"
+  title: 'IF-Store'
   contact: {}
   version: 1.0.0
 servers:
   - url: http://localhost:9091
-    description: "Conta"
+    description: 'Conta'
   - url: http://localhost:9092
-    description: "Notificação"
+    description: 'Notificação'
   - url: http://localhost:9093
-    description: "Envio"
+    description: 'Envio'
   - url: http://localhost:9094
-    description: "Inventário"
+    description: 'Inventário'
+  - url: http://localhost:9096
+    description: 'Pagamento'
 tags:
   - name: Conta
     description: APIs relacionadas à gestão de contas de usuário
@@ -23,6 +25,8 @@ tags:
     description: APIs relacionadas ao gerenciamento de pedidos de compra
   - name: Envio
     description: APIs relacionadas ao envio de itens e gerenciamento de remessas
+  - name: Pagamento
+    description: APIs relacionadas ao processamento de pagamentos
 paths:
   /users:
     post:
@@ -45,8 +49,8 @@ paths:
                   example: example_user
         required: false
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
       x-codegen-request-body-name: body
   /users/{id}:
@@ -63,8 +67,8 @@ paths:
           schema:
             type: string
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
     put:
       tags:
@@ -92,8 +96,8 @@ paths:
                   example: example
         required: false
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
       x-codegen-request-body-name: body
     delete:
@@ -109,8 +113,8 @@ paths:
           schema:
             type: string
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
   /product:
     get:
@@ -129,8 +133,8 @@ paths:
           schema:
             type: string
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
     post:
       tags:
@@ -155,8 +159,8 @@ paths:
                   example: 50.5
         required: false
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
       x-codegen-request-body-name: body
   /product/{productId}:
@@ -173,8 +177,8 @@ paths:
           schema:
             type: string
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
     put:
       tags:
@@ -205,8 +209,8 @@ paths:
                   example: 50.5
         required: false
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
       x-codegen-request-body-name: body
     delete:
@@ -222,8 +226,8 @@ paths:
           schema:
             type: string
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
   /stock/{productId}:
     get:
@@ -239,8 +243,8 @@ paths:
           schema:
             type: string
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
   /stock/{productId}/add:
     put:
@@ -266,8 +270,8 @@ paths:
                   example: 20.0
         required: false
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
       x-codegen-request-body-name: body
   /stock/{productId}/remove:
@@ -294,8 +298,8 @@ paths:
                   example: 20.0
         required: false
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
       x-codegen-request-body-name: body
   /send-message:
@@ -316,11 +320,11 @@ paths:
                   example: Your order has been shipped!
                 order_id:
                   type: string
-                  example: ""
+                  example: ''
         required: false
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
       x-codegen-request-body-name: body
   /order-item:
@@ -343,14 +347,14 @@ paths:
               properties:
                 product_id:
                   type: string
-                  example: ""
+                  example: ''
                 quantity:
                   type: number
                   example: 2.0
         required: false
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
       x-codegen-request-body-name: body
   /order/finish:
@@ -373,14 +377,14 @@ paths:
               properties:
                 order_id:
                   type: string
-                  example: ""
+                  example: ''
                 payment_data:
                   type: string
                   example: lorem
         required: false
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
       x-codegen-request-body-name: body
   /send-items/{orderId}:
@@ -412,8 +416,8 @@ paths:
                     example: 2.0
         required: false
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
       x-codegen-request-body-name: body
   /shipment/{id}:
@@ -430,8 +434,8 @@ paths:
           schema:
             type: string
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
     delete:
       tags:
@@ -446,8 +450,170 @@ paths:
           schema:
             type: string
       responses:
-        "200":
-          description: ""
+        '200':
+          description: ''
           content: {}
-components: {}
-x-original-swagger-version: "2.0"
+  /paymentMethod/{userId}:
+    get:
+      tags:
+        - Pagamento
+      summary: GetPaymentMethods
+      description: Busca os métodos de pagamento de um usuário
+      operationId: GetPaymentMethods
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/paymentMethods'
+                example:
+                  - id: 'b2da76ce-1eb0-4429-bce8-68050681f2b5'
+                    paymentType: 'BOLETO'
+                  - id: '31833ff3-1e15-444d-8c12-75dad85979b0'
+                    paymentType: 'PIX'
+                  - id: '408881a8-682f-4679-9e64-ceaedb387056'
+                    paymentType: 'CREDIT_CARD'
+                    cardNumber: '5203 0081 9897 5523'
+                    cardExpiration: '02/12'
+                    cardCvv: 231
+                    card_holder: 'John Doe'
+
+    post:
+      tags:
+        - Pagamento
+      summary: CreatePaymentMethod
+      description: Cria um método de pagamento (cartão)
+      operationId: CreatePaymentMethod
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  number:
+                    type: string
+                    example: '5203 0081 9897 5523'
+                  card_holder:
+                    type: string
+                    example: 'John Doe'
+                  expiration:
+                    type: string
+                    example: '02/12'
+                  cvv:
+                    type: number
+                    example: 231
+        required: false
+      responses:
+        '200':
+          description: ''
+          content: {}
+      x-codegen-request-body-name: body
+  /paymentMethod/{paymentMethodId}:
+    delete:
+      tags:
+        - Pagamento
+      summary: DeletePaymentMethod
+      description: Deleta um método de pagamento
+      operationId: DeletePaymentMethod
+      parameters:
+        - name: paymentMethodId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content: {}
+  /payment/{userId}:
+    post:
+      tags:
+        - Pagamento
+      summary: CreatePayment
+      description: Cria um pagamento para um pedido
+      operationId: CreatePayment
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  order_id:
+                    type: string
+                    example: '3fb8a147-7ec3-4dd9-85a9-4e59b3bf3a85'
+                  paymentMethodId:
+                    type: string
+                    example: '54078168-8315-4ab1-8376-21e0026e1e3a'
+                  amount:
+                    type: number
+                    example: 50.5
+        required: false
+      responses:
+        '200':
+          description: ''
+          content: {}
+  /payment/{paymentId}:
+    delete:
+      tags:
+        - Pagamento
+      summary: CancelPayment
+      description: Cancela um pagamento
+      operationId: CancelPayment
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content: {}
+components:
+  schemas:
+    paymentMethods:
+      type: object
+      properties:
+        id:
+          type: string
+        paymentType:
+          type: string
+        cardNumber:
+          type: string
+          required: false
+        cardExpiration:
+          type: string
+          required: false
+        cardCvv:
+          type: number
+          required: false
+        card_holder:
+          type: string
+          required: false
+
+x-original-swagger-version: '2.0'

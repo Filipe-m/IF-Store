@@ -1,4 +1,2 @@
 node_modules
-migrations
 ERD.svg
-# Keep environment variables out of version control

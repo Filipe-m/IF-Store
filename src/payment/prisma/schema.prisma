@@ -8,17 +8,13 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Payment {
-  orderId       String   @id @default(uuid())
+  orderId       String   @id @unique
   userId        String
   amount        Float
   paymentMethod String
@@ -29,13 +25,16 @@ model Payment {
 }
 
 model PaymentMethod {
-  id             Int         @id @default(autoincrement())
+  id             String      @id @default(uuid())
   userId         String
   paymentType    PaymentType
   cardNumber     String?     @unique
   cardExpiration String?
   cardCvv        Int?
+  cardHolder     String?
   active         Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
 
   @@map("payment_methods")
 }
@@ -43,5 +42,6 @@ model PaymentMethod {
 enum PaymentType {
   PIX
   BOLETO
+  DEBIT_CARD
   CREDIT_CARD
 }

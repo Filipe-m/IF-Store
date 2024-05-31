@@ -4,9 +4,10 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "deploy": "npx prisma migrate deploy && node server.js",
     "start": "node server.js",
     "db": "prisma generate",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "mocha"
   },
   "keywords": [],
   "author": "Filipe Moreira Coelho",
@@ -14,15 +15,21 @@
   "dependencies": {
     "express": "^4.19.2"
   },
+  "mocha": {
+    "recursive": true
+  },
   "devDependencies": {
     "@mermaid-js/mermaid-cli": "^10.8.0",
-    "jest": "^29.7.0",
+    "chai": "^5.1.1",
+    "mocha": "^10.4.0",
     "prisma": "^5.13.0",
     "prisma-erd-generator": "^1.11.2",
+    "sinon": "^18.0.0",
     "supertest": "^7.0.0"
   },
   "jest": {
-    "transform": {}
+    "transform": {},
+    "testEnvironment": "node"
   },
   "type": "module"
 }
