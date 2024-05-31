@@ -49,7 +49,7 @@ jobs:
           go mod download         
           go test -p 1 -count=1 ./...
 
-      -name: Run payment tests
+      - name: Run payment tests
         working-directory: src/payment
         run: |
           npm ci
