@@ -7,7 +7,7 @@ on:
       - release/*
   pull_request_target:
   merge_group:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   unit:
@@ -21,8 +21,8 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: 1.21
-      
-      -name: Set up Node.js
+
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.x'
@@ -32,16 +32,12 @@ jobs:
         run: |
           go mod download         
           go test -p 1 -count=1 ./...
-        
-        
 
       - name: Run notification tests
         working-directory: src/notification
         run: |
           go mod download         
           go test -p 1 -count=1 ./...
-        
-        
 
       - name: Run shipment tests
         working-directory: src/shipment
@@ -54,11 +50,9 @@ jobs:
         run: |
           npm ci
           npm test
-        
-        
 
   contract:
-    needs: [ unit ]
+    needs: [unit]
     runs-on: ubuntu-latest
     name: Contract Tests
     steps:
@@ -85,15 +79,13 @@ jobs:
         run: |
           go mod download         
           go test -p 1 -count=1 ./...
-        
-        
 
       - name: Stop containers
         working-directory: test/contract/docker
         run: docker compose down
 
   integration:
-    needs: [ unit, contract ]
+    needs: [unit, contract]
     runs-on: ubuntu-latest
     name: Integration Tests
     steps:
@@ -126,7 +118,7 @@ jobs:
         run: docker compose down
 
   component:
-    needs: [ unit, contract, integration ]
+    needs: [unit, contract, integration]
     runs-on: ubuntu-latest
     name: Component Tests
     steps:
@@ -153,15 +145,13 @@ jobs:
         run: |
           go mod download         
           go test -p 1 -count=1 ./...
-        
-        
 
       - name: Stop containers
         working-directory: test/component/docker
         run: docker compose down
 
   end2end-back:
-    needs: [ unit, contract, integration, component ]
+    needs: [unit, contract, integration, component]
     runs-on: ubuntu-latest
     name: End2End Back Tests
     steps:
@@ -194,7 +184,7 @@ jobs:
         run: docker compose down
 
   end2end-front:
-    needs: [ unit, contract, integration, component, end2end-back ]
+    needs: [unit, contract, integration, component, end2end-back]
     runs-on: ubuntu-latest
     name: End2End Front Tests
     steps:
