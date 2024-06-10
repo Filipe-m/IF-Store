@@ -31,6 +31,3 @@ CREATE TABLE "payment_methods" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "payments_orderId_key" ON "payments"("orderId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "payment_methods_cardNumber_key" ON "payment_methods"("cardNumber");

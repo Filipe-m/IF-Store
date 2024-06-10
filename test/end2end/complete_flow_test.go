@@ -35,6 +35,14 @@ func TestCompleteFlow(t *testing.T) {
 	json.NewDecoder(resUser.Body).Decode(&data)
 	userID := data["id"].(string)
 
+	resPaymentMethods, err := http.Get("http://localhost:9096/paymentMethod/" + userID)
+	assert.NoError(t, err)
+
+	var dataMethods []map[string]interface{}
+	err = json.NewDecoder(resPaymentMethods.Body).Decode(&dataMethods)
+	assert.NoError(t, err)
+	paymentMethodId := dataMethods[0]["id"].(string)
+
 	bodyProductJSON, _ := json.Marshal(map[string]interface{}{
 		"name":        productName,
 		"description": productDescription,
@@ -78,8 +86,8 @@ func TestCompleteFlow(t *testing.T) {
 	orderID := data["id"].(string)
 
 	bodyFinishOrderJSON, _ := json.Marshal(map[string]interface{}{
-		"order_id":     orderID,
-		"payment_data": "lorem",
+		"order_id":          orderID,
+		"payment_method_id": paymentMethodId,
 	})
 	reqFinishOrder, err := http.NewRequest(http.MethodPost, "http://localhost:9095/order/finish", bytes.NewBuffer(bodyFinishOrderJSON))
 	assert.NoError(t, err)

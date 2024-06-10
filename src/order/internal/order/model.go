@@ -42,8 +42,8 @@ type Item struct {
 }
 
 type FinishOrder struct {
-	PaymentData string `json:"payment_data"`
-	OrderID     string `json:"order_id"`
+	PaymentMethodId string `json:"payment_method_id"`
+	OrderID         string `json:"order_id"`
 }
 
 func (i *Item) CalculateTotalPrice() decimal.Decimal {

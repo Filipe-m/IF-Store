@@ -80,8 +80,10 @@ describe('end2end', () => {
 
     cy.get(':nth-child(2) > .nav-link').click();
 
-    cy.get('#creditCardNumber').type('1234567890123456');
-    cy.get('#creditCardNumber').should('have.value', '1234567890123456')
+    cy.get('.show > .btn').click();
+
+    cy.get('#creditCardNumber').type('5203 0081 9897 5523');
+    cy.get('#creditCardNumber').should('have.value', '5203 0081 9897 5523')
 
     cy.get('#cardOwner').type('Teste Testador');
     cy.get('#cardOwner').should('have.value', 'Teste Testador')
@@ -91,6 +93,10 @@ describe('end2end', () => {
 
     cy.get('#expirationDate').type('12/26');
     cy.get('#expirationDate').should('have.value', '12/26')
+
+    cy.get(':nth-child(3) > .btn').click();
+
+    cy.get('#paymentMethods').select('CREDIT_CARD');
 
     cy.get('.modal-footer > .btn-primary').last().click();
     cy.get('.alert').should('contain', 'Compra finalizada com sucesso!');

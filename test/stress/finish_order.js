@@ -36,6 +36,16 @@ export default function () {
 
     const userId = JSON.parse(resUser.body).id;
 
+    const resPaymentMethods = http.get(`http://127.0.0.1:9096/paymentMethod/${userId}`, {
+        headers: {'Content-Type': 'application/json'},
+    });
+
+    check(resPaymentMethods, {
+        'status is 200': (r) => r.status === 200,
+    });
+
+    const paymentMethodId = JSON.parse(resPaymentMethods.body)[0].id;
+
     const bodyProduct = {name: productName, description: productDescription, price: price};
     const resProduct = http.post('http://127.0.0.1:9094/product/register', JSON.stringify(bodyProduct), {
         headers: {'Content-Type': 'application/json'},
@@ -67,7 +77,7 @@ export default function () {
 
     const orderId = JSON.parse(resOrderItem.body).id;
 
-    const bodyFinishOrder = {order_id: orderId, payment_data: "lorem"};
+    const bodyFinishOrder = {order_id: orderId, payment_method_id: paymentMethodId};
     const resFinishOrder = http.post('http://127.0.0.1:9095/order/finish', JSON.stringify(bodyFinishOrder), {
         headers: {'Content-Type': 'application/json', 'USER-ID': userId},
     });

@@ -132,7 +132,11 @@ func (s *service) FinishOrder(ctx context.Context, request *FinishOrder) error {
 		return err
 	}
 
-	err = s.payment.SendPayment(ctx)
+	err = s.payment.SendPayment(order.UserID, payment.Payment{
+		OrderId:         order.ID,
+		PaymentMethodId: request.PaymentMethodId,
+		Amount:          order.TotalAmount.InexactFloat64(),
+	}, ctx)
 	if err != nil {
 		return err
 	}

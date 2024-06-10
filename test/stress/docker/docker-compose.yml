@@ -81,6 +81,7 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_SLLMODE=disable
       - POSTGRES_TIMEZONE=America/Sao_Paulo
+      - ACCOUNT_URL=http://account-app:9091
     restart: unless-stopped
     ports:
       - "9092:9092"
@@ -141,8 +142,29 @@ services:
       - INVENTORY_URL=http://inventory-app:9094
       - NOTIFICATION_URL=http://notification-app:9092
       - SHIPMENT_URL=http://shipment-app:9093
+      - PAYMENT_URL=http://payment-app:9096
     restart: unless-stopped
     ports:
       - "9095:9095"
     depends_on:
       - order-db
+
+  payment-app:
+    build:
+      context: ../../../src/payment/
+      dockerfile: Dockerfile
+    image: payment
+    environment:
+      - POSTGRES_HOST=payment-db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      - POSTGRES_SLLMODE=disable
+      - POSTGRES_TIMEZONE=America/Sao_Paulo
+      - PORT=9096
+    restart: unless-stopped
+    ports:
+      - "9096:9096"
+    depends_on:
+      - payment-db

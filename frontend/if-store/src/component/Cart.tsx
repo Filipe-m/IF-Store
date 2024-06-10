@@ -24,6 +24,11 @@ interface Cart {
     items: CartItem[];
 }
 
+interface PaymentMethod {
+    id: string;
+    paymentType: string;
+}
+
 interface CartState {
     cart: Cart | null;
     loading: boolean;
@@ -40,6 +45,9 @@ interface CartState {
     securityCode: string;
     expirationDate: string;
     activeTab: string;
+    paymentMethods: PaymentMethod[];
+    showAddCardForm: boolean;
+    paymentMethodId: string;
 }
 
 export default class ShoppingCart extends React.Component<{}, CartState> {
@@ -61,6 +69,9 @@ export default class ShoppingCart extends React.Component<{}, CartState> {
             securityCode: '',
             expirationDate: '',
             activeTab: 'address',
+            paymentMethods: [],
+            showAddCardForm: false,
+            paymentMethodId: ''
         };
     }
 
@@ -129,6 +140,34 @@ export default class ShoppingCart extends React.Component<{}, CartState> {
 
     handleFinishOrder = async () => {
         this.setState({ showModal: true });
+        await this.fetchPaymentMethods();
+    };
+
+    fetchPaymentMethods = async () => {
+        try {
+            const userData = localStorage.getItem('userData');
+            if (!userData) {
+                throw new Error('user not authenticated');
+            }
+            const userId = JSON.parse(userData).id;
+
+            const response = await fetch(`${process.env.REACT_APP_PAYMENT_URL}/paymentMethod/${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('error fetching payment methods');
+            }
+
+            const paymentMethods = await response.json();
+            console.log(paymentMethods);
+            this.setState({ paymentMethods });
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     handleSubmitForm = async (event: React.FormEvent) => {
@@ -151,14 +190,10 @@ export default class ShoppingCart extends React.Component<{}, CartState> {
                 },
                 body: JSON.stringify({
                     order_id: this.state.cart?.id,
-                    address: this.state.address,
+                    payment_method_id: this.state.paymentMethodId,
                     neighborhood: this.state.neighborhood,
                     city: this.state.city,
                     zipCode: this.state.zipCode,
-                    creditCardNumber: this.state.creditCardNumber,
-                    cardOwner: this.state.cardOwner,
-                    securityCode: this.state.securityCode,
-                    expirationDate: this.state.expirationDate,
                 })
             });
 
@@ -176,8 +211,42 @@ export default class ShoppingCart extends React.Component<{}, CartState> {
         }
     };
 
+    handleAddCard = async (event: React.FormEvent) => {
+        event.preventDefault();
+
+        try {
+            const userData = localStorage.getItem('userData');
+            if (!userData) {
+                throw new Error('user not authenticated');
+            }
+            const userId = JSON.parse(userData).id;
+
+            const response = await fetch(`${process.env.REACT_APP_PAYMENT_URL}/paymentMethod/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify([{
+                    number: this.state.creditCardNumber,
+                    card_holder: this.state.cardOwner,
+                    expiration: this.state.expirationDate,
+                    cvv: parseFloat(this.state.securityCode),
+                }])
+            });
+
+            if (!response.ok) {
+                throw new Error('error adding card');
+            }
+
+            await this.fetchPaymentMethods();
+            this.setState({ showAddCardForm: false, creditCardNumber: '', cardOwner: '', securityCode: '', expirationDate: '' });
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     render() {
-        const { cart, loading, showConfirmation, loadingFinish, finishSuccess, showModal, activeTab } = this.state;
+        const { cart, loading, showConfirmation, loadingFinish, finishSuccess, showModal, activeTab, paymentMethods, showAddCardForm } = this.state;
 
         if (loading) {
             return <div>Carregando carrinho...</div>;
@@ -237,21 +306,42 @@ export default class ShoppingCart extends React.Component<{}, CartState> {
                                                 </div>
                                                 <div className={`tab-pane fade ${activeTab === 'payment' ? 'show active' : ''}`}>
                                                     <div className="form-group">
-                                                        <label htmlFor="creditCardNumber">Número do Cartão de Crédito</label>
-                                                        <input type="text" className="form-control" id="creditCardNumber" value={this.state.creditCardNumber} onChange={(e) => this.setState({ creditCardNumber: e.target.value })} required />
+                                                        <label htmlFor="paymentMethods">Métodos de Pagamento Salvos</label>
+                                                        <select className="form-control" id="paymentMethods" onChange={(e) => this.setState({ paymentMethodId: e.target.value })}>
+                                                            <option value="">Selecione um método de pagamento</option>
+                                                            {paymentMethods.map((method) => (
+                                                                <option key={method.id} value={method.id}>
+                                                                    {method.paymentType}
+                                                                </option>
+                                                            ))}
+                                                        </select>
                                                     </div>
-                                                    <div className="form-group">
-                                                        <label htmlFor="cardOwner">Nome do Dono do Cartão</label>
-                                                        <input type="text" className="form-control" id="cardOwner" value={this.state.cardOwner} onChange={(e) => this.setState({ cardOwner: e.target.value })} required />
-                                                    </div>
-                                                    <div className="form-group">
-                                                        <label htmlFor="securityCode">Código de Segurança</label>
-                                                        <input type="text" className="form-control" id="securityCode" value={this.state.securityCode} onChange={(e) => this.setState({ securityCode: e.target.value })} required />
-                                                    </div>
-                                                    <div className="form-group">
-                                                        <label htmlFor="expirationDate">Data de Vencimento</label>
-                                                        <input type="text" className="form-control" id="expirationDate" value={this.state.expirationDate} onChange={(e) => this.setState({ expirationDate: e.target.value })} required />
-                                                    </div>
+                                                    <button type="button" className="btn btn-secondary" onClick={() => this.setState({ showAddCardForm: !showAddCardForm })}>
+                                                        {showAddCardForm ? 'Cancelar' : 'Adicionar Cartão'}
+                                                    </button>
+                                                    {showAddCardForm && (
+                                                        <div>
+                                                            <div className="form-group">
+                                                                <label htmlFor="creditCardNumber">Número do Cartão de Crédito</label>
+                                                                <input type="text" className="form-control" id="creditCardNumber" value={this.state.creditCardNumber} onChange={(e) => this.setState({ creditCardNumber: e.target.value })} required />
+                                                            </div>
+                                                            <div className="form-group">
+                                                                <label htmlFor="cardOwner">Nome do Dono do Cartão</label>
+                                                                <input type="text" className="form-control" id="cardOwner" value={this.state.cardOwner} onChange={(e) => this.setState({ cardOwner: e.target.value })} required />
+                                                            </div>
+                                                            <div className="form-group">
+                                                                <label htmlFor="securityCode">Código de Segurança</label>
+                                                                <input type="text" className="form-control" id="securityCode" value={this.state.securityCode} onChange={(e) => this.setState({ securityCode: e.target.value })} required />
+                                                            </div>
+                                                            <div className="form-group">
+                                                                <label htmlFor="expirationDate">Data de Vencimento</label>
+                                                                <input type="text" className="form-control" id="expirationDate" value={this.state.expirationDate} onChange={(e) => this.setState({ expirationDate: e.target.value })} required />
+                                                            </div>
+                                                            <button type="button" className="btn btn-primary" onClick={this.handleAddCard} disabled={loadingFinish}>
+                                                                {loadingFinish ? <FontAwesomeIcon icon={faSpinner} spin /> : 'Salvar Cartão'}
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                             <div className="modal-footer">

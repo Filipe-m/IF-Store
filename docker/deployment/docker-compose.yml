@@ -154,6 +154,7 @@ services:
       - INVENTORY_URL=http://inventory-app:9094
       - NOTIFICATION_URL=http://notification-app:9092
       - SHIPMENT_URL=http://shipment-app:9093
+      - PAYMENT_URL=http://payment-app:9096
     restart: unless-stopped
     ports:
       - "9095:9095"
@@ -188,7 +189,7 @@ services:
     environment:
       - REACT_APP_INVENTORY_URL=http://localhost:9094
       - REACT_APP_ACCOUNT_URL=http://localhost:9091
-      - REACT_APP_PAYMENT_URL=
+      - REACT_APP_PAYMENT_URL=http://localhost:9096
       - REACT_APP_SHIPMENT_URL=http://localhost:9093
       - REACT_APP_ORDER_URL=http://localhost:9095
     restart: unless-stopped

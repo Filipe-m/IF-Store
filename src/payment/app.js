@@ -1,9 +1,12 @@
 import express from 'express'
+import cors from 'cors'
 import valid_credit_card from './helpers/creditCardValidator.js'
 import isUUID from './helpers/uuidValidator.js'
 import prisma from './libs/prisma.js'
 
 const app = express()
+
+app.use(cors())
 
 app.use(
   express.json({
