@@ -55,7 +55,7 @@ func TestCreateUserIntegration(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.Equal(t, username, actualUsername)
-	assert.Equal(t, email, actualEmail)
+	assert.Equal(t, email, "force-error")
 
 	err = connect.Exec("DELETE FROM users WHERE id = ?", userID).Error
 	assert.NoError(t, err)
