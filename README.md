@@ -1,8 +1,12 @@
-[![CI](https://github.com/Filipe-m/IF-Store/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Filipe-m/IF-Store/actions/workflows/tests.yml)
+<p align="center">
+  <a href="https://github.com/Filipe-m/IF-Store/actions/workflows/tests.yml">
+    <img src="https://github.com/Filipe-m/IF-Store/actions/workflows/tests.yml/badge.svg" alt="CI">
+  </a>
+</p>
 
 # IF-Store
 
-> IF-Store is a simple e-commerce application that allows users to browse products, add them to a cart, and checkout. The application is built using `Golang` and `Nodejs`.
+> Is a simple e-commerce application that allows users to browse products, add them to a cart, and checkout. The application is built using `Golang` and `Nodejs`.
 
 ## Organization
 <p align="center">
